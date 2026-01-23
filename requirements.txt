@@ -1,0 +1,19 @@
+# VexHelix Python Dependencies
+
+# Core symbolic execution
+angr==9.2.194
+claripy==9.2.194
+pyvex==9.2.194
+cle==9.2.194
+archinfo==9.2.194
+
+# Web framework
+fastapi==0.128.0
+uvicorn[standard]==0.40.0
+python-multipart==0.0.21
+
+# Data validation
+pydantic==2.12.5
+
+# Utilities
+aiofiles==24.1.0
