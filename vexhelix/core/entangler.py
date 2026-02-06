@@ -61,40 +61,63 @@ def demangle_cpp_name(name: str) -> str:
 
 def find_function_symbol(project: angr.Project, func_name: str) -> Optional[Any]:
     """
-    Find a function symbol in the binary, handling C++ name mangling.
+    Find a function symbol in the binary, handling various naming conventions.
     
     Tries multiple strategies:
     1. Direct symbol lookup
-    2. Search for mangled name matching the base function name
-    3. Search for FUN_ or sub_ prefixes (Ghidra/IDA style)
+    2. Underscore prefixes (_func, __func)
+    3. C++ name mangling via cxxfilt
+    4. Suffix matching (for funcN patterns)
+    5. FUN_/sub_ prefixes (Ghidra/IDA style)
+    6. CFG-based function discovery
     
     Args:
         project: The angr project
-        func_name: Function name to search for
+        func_name: Function name to search for (e.g., 'func0', 'myFunction', 'main')
         
     Returns:
         Symbol object if found, None otherwise
     """
+    # Normalize the function name (remove leading underscores for comparison)
+    func_name_normalized = func_name.lstrip('_')
+    
     # Strategy 1: Direct lookup
     sym = project.loader.find_symbol(func_name)
     if sym:
         logger.info(f"Found symbol '{func_name}' directly at {hex(sym.rebased_addr)}")
         return sym
     
-    # Strategy 2: Search all symbols for matching mangled name
+    # Strategy 1b: Try with underscore prefix (common in some binaries)
+    for prefix in ['_', '__']:
+        sym = project.loader.find_symbol(prefix + func_name)
+        if sym:
+            logger.info(f"Found symbol '{prefix}{func_name}' at {hex(sym.rebased_addr)}")
+            return sym
+    
+    # Strategy 2: Search all symbols for matching mangled name or pattern
     for sym in project.loader.symbols:
         if not sym.name:
             continue
+        
+        sym_name_normalized = sym.name.lstrip('_')
             
         # Check if this is the mangled version of our function
         if is_cpp_mangled_name(sym.name):
             demangled = demangle_cpp_name(sym.name)
-            if demangled == func_name or demangled.endswith(f"_{func_name}") or demangled.endswith(func_name):
+            demangled_normalized = demangled.lstrip('_')
+            if (demangled == func_name or 
+                demangled_normalized == func_name_normalized or
+                demangled.endswith(f"_{func_name}") or 
+                demangled.endswith(func_name) or
+                demangled_normalized.endswith(func_name_normalized)):
                 logger.info(f"Found mangled symbol '{sym.name}' -> '{demangled}' at {hex(sym.rebased_addr)}")
                 return sym
         
-        # Check exact match or suffix match
-        if sym.name == func_name or sym.name.endswith(func_name):
+        # Check exact match or suffix match (handles funcN, func_N, etc.)
+        if (sym.name == func_name or 
+            sym_name_normalized == func_name_normalized or
+            sym.name.endswith(func_name) or
+            sym_name_normalized.endswith(func_name_normalized)):
             logger.info(f"Found symbol '{sym.name}' at {hex(sym.rebased_addr)}")
             return sym
     
@@ -104,7 +127,6 @@ def find_function_symbol(project: angr.Project, func_name: str) -> Optional[Any]
         if match:
             addr = int(match.group(1), 16)
             logger.info(f"Parsed FUN_ address: {hex(addr)}")
-            # Create a pseudo-symbol with this address
             return type('Symbol', (), {'rebased_addr': addr, 'name': func_name})()
     
     if "sub_" in func_name:
@@ -113,6 +135,21 @@ def find_function_symbol(project: angr.Project, func_name: str) -> Optional[Any]
             addr = int(match.group(1), 16)
             logger.info(f"Parsed sub_ address: {hex(addr)}")
             return type('Symbol', (), {'rebased_addr': addr, 'name': func_name})()
+    
+    # Strategy 4: Try to find function by CFG analysis
+    try:
+        cfg = project.analyses.CFGFast()
+        for func_addr, func in cfg.kb.functions.items():
+            if func.name:
+                cfg_name_normalized = func.name.lstrip('_')
+                if (func.name == func_name or 
+                    cfg_name_normalized == func_name_normalized or
+                    func.name.endswith(func_name) or
+                    cfg_name_normalized.endswith(func_name_normalized)):
+                    logger.info(f"Found function '{func.name}' via CFG at {hex(func_addr)}")
+                    return type('Symbol', (), {'rebased_addr': func_addr, 'name': func.name})()
+    except Exception as e:
+        logger.debug(f"CFG analysis for function lookup failed: {e}")
     
     return None
 
@@ -156,18 +193,33 @@ def create_entangled_states(
     sym_dec = find_function_symbol(proj_dec, func_name_dec)
     
     if not sym_orig:
-        # List available symbols for debugging
-        available = [s.name for s in proj_orig.loader.symbols if s.name and 'func' in s.name.lower()][:10]
+        # List available symbols for debugging (show function symbols, not just 'func')
+        available_funcs = [s.name for s in proj_orig.loader.symbols 
+                          if s.name and s.is_function][:20]
+        # Also try CFG
+        try:
+            cfg = proj_orig.analyses.CFGFast()
+            cfg_funcs = [f.name for f in cfg.kb.functions.values() if f.name][:20]
+        except:
+            cfg_funcs = []
         raise EntanglementError(
             f"Function '{func_name_orig}' not found in original binary. "
-            f"Available func-like symbols: {available}"
+            f"Available symbols: {available_funcs}. CFG functions: {cfg_funcs}"
         )
     
     if not sym_dec:
-        available = [s.name for s in proj_dec.loader.symbols if s.name and 'func' in s.name.lower()][:10]
+        # List available symbols for debugging (show function symbols, not just 'func')
+        available_funcs = [s.name for s in proj_dec.loader.symbols 
+                          if s.name and s.is_function][:20]
+        # Also try CFG
+        try:
+            cfg = proj_dec.analyses.CFGFast()
+            cfg_funcs = [f.name for f in cfg.kb.functions.values() if f.name][:20]
+        except:
+            cfg_funcs = []
         raise EntanglementError(
             f"Function '{func_name_dec}' not found in decompiled binary. "
-            f"Available func-like symbols: {available}"
+            f"Available symbols: {available_funcs}. CFG functions: {cfg_funcs}"
         )
     
     logger.info(f"Original function at: {hex(sym_orig.rebased_addr)}")
