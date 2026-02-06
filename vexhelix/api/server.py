@@ -373,11 +373,17 @@ async def global_exception_handler(request, exc):
 
 if __name__ == "__main__":
     import uvicorn
-    
+    main()
+
+
+def main():
+    """Entry point for ``vexhelix-server`` console script."""
+    import uvicorn
+
     uvicorn.run(
         "vexhelix.api.server:app",
         host="0.0.0.0",
         port=8000,
         reload=False,
-        log_level="info"
+        log_level="info",
     )

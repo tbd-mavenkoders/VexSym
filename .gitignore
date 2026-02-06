@@ -68,3 +68,4 @@ Thumbs.db
 # VexHelix specific
 /compiled_binaries/
 /test_outputs/
+*.pid
