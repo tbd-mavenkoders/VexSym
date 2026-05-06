@@ -5,7 +5,7 @@ Tests for the compiler module.
 import pytest
 import tempfile
 import os
-from vexhelix.core.compiler import (
+from vexsym.core.compiler import (
     compile_source,
     CompilationError,
     verify_compiler_availability

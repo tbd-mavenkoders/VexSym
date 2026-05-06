@@ -1,5 +1,5 @@
 """
-VexHelix FastAPI Server
+VexSym FastAPI Server
 
 RESTful API for bounded relational symbolic execution verification.
 
@@ -33,7 +33,7 @@ from .models import (
     OutputValue,
 )
 
-from vexhelix.core import (
+from vexsym.core import (
     compile_source,
     load_projects,
     create_entangled_states,
@@ -42,10 +42,10 @@ from vexhelix.core import (
     compare_results,
 )
 
-from vexhelix.core.compiler import verify_compiler_availability, CompilationError
-from vexhelix.core.loader import get_project_info, list_all_functions, ProjectLoadError
-from vexhelix.core.entangler import EntanglementError
-from vexhelix.core.executor import ExecutionError
+from vexsym.core.compiler import verify_compiler_availability, CompilationError
+from vexsym.core.loader import get_project_info, list_all_functions, ProjectLoadError
+from vexsym.core.entangler import EntanglementError
+from vexsym.core.executor import ExecutionError
 
 # Configure logging
 logging.basicConfig(
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="VexHelix API",
+    title="VexSym API",
     description="Bounded Relational Symbolic Execution for Decompilation Verification",
     version="1.0.0",
     docs_url="/docs",
@@ -73,14 +73,14 @@ app.add_middleware(
 )
 
 # Import version
-from vexhelix import __version__
+from vexsym import __version__
 
 
 @app.get("/", tags=["General"])
 async def root():
     """Root endpoint with API information."""
     return {
-        "name": "VexHelix API",
+        "name": "VexSym API",
         "version": __version__,
         "description": "Decompilation verification using bounded relational symbolic execution",
         "docs": "/docs",
@@ -328,7 +328,7 @@ async def analyze_binary(
         
         # Load with angr
         try:
-            from vexhelix.core.loader import load_projects
+            from vexsym.core.loader import load_projects
             import angr
             
             proj = angr.Project(bin_path, auto_load_libs=False)
@@ -377,11 +377,11 @@ if __name__ == "__main__":
 
 
 def main():
-    """Entry point for ``vexhelix-server`` console script."""
+    """Entry point for ``vexsym-server`` console script."""
     import uvicorn
 
     uvicorn.run(
-        "vexhelix.api.server:app",
+        "vexsym.api.server:app",
         host="0.0.0.0",
         port=8000,
         reload=False,

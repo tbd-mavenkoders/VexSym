@@ -1,8 +1,8 @@
-# VexHelix
+# VexSym
 
 **Bounded Relational Symbolic Execution for Decompilation Verification**
 
-VexHelix automatically verifies whether decompiled source code is
+VexSym automatically verifies whether decompiled source code is
 semantically equivalent to its original binary.  It compiles the
 decompiled C/C++ source, lifts both executables to VEX IR via
 [angr](https://angr.io), executes them symbolically with shared
@@ -26,8 +26,8 @@ counter-examples that trigger divergent behaviour.
 ### Docker (recommended)
 
 ```bash
-docker build -t vexhelix .
-docker run -d -p 8000:8000 vexhelix
+docker build -t vexsym .
+docker run -d -p 8000:8000 vexsym
 curl http://localhost:8000/health
 ```
 
@@ -39,7 +39,7 @@ pip install -e ".[dev]"          # editable install with test deps
 pip install -r requirements.txt  # exact pinned versions
 
 # start server
-uvicorn vexhelix.api.server:app --host 0.0.0.0 --port 8000
+uvicorn vexsym.api.server:app --host 0.0.0.0 --port 8000
 ```
 
 ### Verify a decompilation
@@ -49,7 +49,7 @@ uvicorn vexhelix.api.server:app --host 0.0.0.0 --port 8000
 echo 'int access_check(int l){if(l>=10)return 1;return 0;} int main(){return 0;}' \
   | gcc -x c -O0 -fno-stack-protector -no-pie -o /tmp/orig.bin -
 
-# send to VexHelix (decompiled code has a bug)
+# send to VexSym (decompiled code has a bug)
 curl -X POST http://localhost:8000/verify \
   -F original_binary=@/tmp/orig.bin \
   -F 'decompiled_code=int access_check(int l){return 1;}' \
@@ -68,7 +68,7 @@ input (e.g. `l = 0`) that triggers the divergence.
 ## Project Layout
 
 ```
-vexhelix/
+vexsym/
 ├── core/
 │   ├── compiler.py      # GCC/G++ harness (-O0, -fno-stack-protector)
 │   ├── loader.py         # angr/CLE binary loading
@@ -148,7 +148,7 @@ symbol list).
 ## Python Library Usage
 
 ```python
-from vexhelix import (
+from vexsym import (
     compile_source,
     load_projects,
     create_entangled_states,
@@ -176,7 +176,7 @@ else:
 ```bash
 pytest                        # runs all tests
 pytest -k test_compiler       # compiler tests only
-pytest --cov=vexhelix         # with coverage
+pytest --cov=vexsym         # with coverage
 ```
 
 ## Docker
@@ -185,14 +185,14 @@ The provided `Dockerfile` builds on Ubuntu 24.04 with Python 3.12 and
 GCC/G++ 13.  It starts Uvicorn with 12 workers by default.
 
 ```bash
-docker build -t vexhelix .
-docker run -d -p 8000:8000 --name vexhelix vexhelix
-docker logs -f vexhelix
+docker build -t vexsym .
+docker run -d -p 8000:8000 --name vexsym vexsym
+docker logs -f vexsym
 ```
 
 ## Comparison with D-Helix
 
-| | D-Helix | VexHelix |
+| | D-Helix | VexSym |
 |---|---|---|
 | Approach | CFG isomorphism | Observable divergence |
 | IR | KLEE (LLVM) + angr (VEX) | VEX only |
@@ -210,12 +210,12 @@ docker logs -f vexhelix
 ## Citation
 
 ```bibtex
-@software{vexhelix2026,
-  title   = {VexHelix: Bounded Relational Symbolic Execution
+@software{vexsym2026,
+  title   = {VexSym: Bounded Relational Symbolic Execution
              for Decompilation Verification},
-  author  = {{VexHelix Authors}},
+  author  = {{VexSym Authors}},
   year    = {2026},
-  url     = {https://github.com/tbd-mavenkoders/VexHelix}
+  url     = {https://github.com/tbd-mavenkoders/VexSym}
 }
 ```
 

@@ -1,4 +1,4 @@
-# VexHelix — Bounded Relational Symbolic Execution for Decompilation Verification
+# VexSym — Bounded Relational Symbolic Execution for Decompilation Verification
 # Ubuntu 24.04 · Python 3.12 · GCC/G++ 13 · angr
 
 FROM ubuntu:24.04
@@ -27,16 +27,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # ── application code ─────────────────────────────────────────────────────────
 COPY pyproject.toml /app/pyproject.toml
-COPY vexhelix/      /app/vexhelix/
+COPY vexsym/      /app/vexsym/
 RUN pip install --no-cache-dir -e .
 
 # ── runtime ──────────────────────────────────────────────────────────────────
-RUN mkdir -p /tmp/vexhelix && chmod 777 /tmp/vexhelix
+RUN mkdir -p /tmp/vexsym && chmod 777 /tmp/vexsym
 
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -sf http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "vexhelix.api.server:app", \
+CMD ["uvicorn", "vexsym.api.server:app", \
      "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

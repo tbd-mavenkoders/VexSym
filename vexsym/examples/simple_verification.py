@@ -1,5 +1,5 @@
 """
-Example: Simple verification using VexHelix API.
+Example: Simple verification using VexSym API.
 
 This example demonstrates verifying a simple decompiled function
 against its original binary.
@@ -26,7 +26,7 @@ def verify_simple_function():
     # First, compile the original to create a binary
     # In a real scenario, you'd have the original binary
     import tempfile
-    from vexhelix.core import compile_source
+    from vexsym.core import compile_source
     
     original_bin = compile_source(decompiled_code, is_cpp=False)
     
@@ -101,7 +101,7 @@ def verify_with_bug():
     }
     """
     
-    from vexhelix.core import compile_source
+    from vexsym.core import compile_source
     import requests
     import os
     
@@ -149,8 +149,8 @@ def verify_with_bug():
 
 
 if __name__ == "__main__":
-    print("VexHelix API Example")
-    print("Make sure the API server is running: uvicorn vexhelix.api.server:app")
+    print("VexSym API Example")
+    print("Make sure the API server is running: uvicorn vexsym.api.server:app")
     print()
     
     # Example 1: Correct decompilation
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     try:
         verify_simple_function()
     except requests.exceptions.ConnectionError:
-        print("Error: API server not running. Start with: uvicorn vexhelix.api.server:app")
+        print("Error: API server not running. Start with: uvicorn vexsym.api.server:app")
     except Exception as e:
         print(f"Error: {e}")
     

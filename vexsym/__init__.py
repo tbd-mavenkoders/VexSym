@@ -1,12 +1,12 @@
 """
-VexHelix: Bounded Relational Symbolic Execution for Decompilation Verification
+VexSym: Bounded Relational Symbolic Execution for Decompilation Verification
 
 A robust automated system for verifying semantic equivalence between
 original binaries and decompiled source code using VEX IR and angr.
 """
 
 __version__ = "1.0.0"
-__author__ = "VexHelix Project"
+__author__ = "VexSym Project"
 
 from .core.compiler import compile_source
 from .core.loader import load_projects

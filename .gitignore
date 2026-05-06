@@ -65,7 +65,7 @@ logs/
 .DS_Store
 Thumbs.db
 
-# VexHelix specific
+# VexSym specific
 /compiled_binaries/
 /test_outputs/
 *.pid

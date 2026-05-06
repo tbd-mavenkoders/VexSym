@@ -3,14 +3,14 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "vexhelix"
+name = "vexsym"
 version = "1.0.0"
 description = "Bounded Relational Symbolic Execution for Decompilation Verification"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "VexHelix Authors"},
+    {name = "VexSym Authors"},
 ]
 keywords = [
     "binary-analysis",
@@ -52,18 +52,18 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tbd-mavenkoders/VexHelix"
-Repository = "https://github.com/tbd-mavenkoders/VexHelix"
-Issues = "https://github.com/tbd-mavenkoders/VexHelix/issues"
+Homepage = "https://github.com/tbd-mavenkoders/VexSym"
+Repository = "https://github.com/tbd-mavenkoders/VexSym"
+Issues = "https://github.com/tbd-mavenkoders/VexSym/issues"
 
 [project.scripts]
-vexhelix-server = "vexhelix.api.server:main"
+vexsym-server = "vexsym.api.server:main"
 
 [tool.setuptools.packages.find]
-include = ["vexhelix*"]
+include = ["vexsym*"]
 
 [tool.pytest.ini_options]
-testpaths = ["vexhelix/tests"]
+testpaths = ["vexsym/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

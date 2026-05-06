@@ -1,5 +1,5 @@
 """
-API models for VexHelix verification service.
+API models for VexSym verification service.
 
 Defines request and response schemas using Pydantic.
 """

@@ -5,7 +5,7 @@ Integration test: Complete verification workflow.
 import pytest
 import tempfile
 import os
-from vexhelix.core import (
+from vexsym.core import (
     compile_source,
     load_projects,
     create_entangled_states,

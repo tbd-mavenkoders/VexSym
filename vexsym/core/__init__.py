@@ -1,5 +1,5 @@
 """
-Core modules for VexHelix verification engine.
+Core modules for VexSym verification engine.
 """
 
 from .compiler import compile_source

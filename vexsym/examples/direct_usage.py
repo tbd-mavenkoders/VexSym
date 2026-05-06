@@ -1,11 +1,11 @@
 """
-Example: Direct usage of VexHelix core modules without API.
+Example: Direct usage of VexSym core modules without API.
 
 This demonstrates using the core verification engine directly.
 """
 
 import os
-from vexhelix.core import (
+from vexsym.core import (
     compile_source,
     load_projects,
     create_entangled_states,
@@ -19,7 +19,7 @@ def direct_verification_example():
     Direct verification without using the API.
     """
     print("="*70)
-    print("VexHelix Direct Verification Example")
+    print("VexSym Direct Verification Example")
     print("="*70)
     
     # Original correct implementation
